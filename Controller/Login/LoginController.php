@@ -2,20 +2,39 @@
 
 namespace Controller\Login;
 
-class LoginController {
+require_once("VerifyLoginController.php");
+require_once("../../Models/SqlModel.php");
 
-    public $usuario;
-    public $senha;
+use Controller\Login\VerifyLoginController;
+use Models\SqlModel;
 
-    public function receiveData($l, $s){
+class LoginController extends VerifyLoginController{
 
-        return $this->usuario = $l . $this->senha = $s;
+    public $user;
+    public $pass;
 
+    public function toCompare($user, $pass)
+    {
+        $this->exist($user, $pass);
+        $this->user = $user;
+        $this->pass = md5($pass);
+
+        $m = new SqlModel();
+        $m->getUser();
+
+        $this->validateCompare($this->user, $this->pass, $m->getUser());
     }
+
+    public function validateCompare($u, $p, $a)
+    {
+        if($u === $a["usuario"] AND $p === $a['senha']){
+            header("location: ../../Views/Dash/Dashboard.php");        
+        } else {
+            header("location: ../../index.php");
+        }
+    } 
 
 }
 
-$a = 
-
 $x = new LoginController();
-echo $x->receiveData($_POST["login"], $_POST["senha"]);
+echo $x->toCompare($_POST["login"], $_POST["senha"]);
